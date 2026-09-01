@@ -1,0 +1,147 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  OWNER
+  MANAGER
+  RANGER
+  GUEST
+  ADMIN
+}
+
+enum ProjectType {
+  ANTI_POACHING
+  REFORESTATION
+  WATER_PROJECT
+  SOLAR_COMMUNITY
+  WILDLIFE_CORRIDOR
+  HUMAN_WILDLIFE_CONFLICT
+}
+
+enum CertificateStatus {
+  ISSUED
+  RETIRED
+  VERIFIED
+}
+
+model Tenant {
+  id               String                 @id @default(uuid())
+  name             String                 // e.g. "Hwange Safari Lodge"
+  slug             String                 @unique // e.g. "hwange-safari"
+  country          String                 @default("Zimbabwe")
+  region           String                 // e.g. "Matabeleland North / Hwange"
+  logoUrl          String?
+  settings         Json?                  // currency, campfire share percentage, etc.
+  projects         ConservationProject[]
+  offsetProjects   OffsetProject[]
+  users            Membership[]
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+
+  @@index([slug])
+}
+
+model User {
+  id          String       @id @default(uuid())
+  email       String       @unique
+  password    String
+  name        String
+  avatarUrl   String?
+  memberships Membership[]
+  purchases   OffsetPurchase[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Membership {
+  id        String   @id @default(uuid())
+  userId    String
+  tenantId  String
+  role      Role     @default(GUEST)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, tenantId])
+  @@index([tenantId])
+}
+
+model ConservationProject {
+  id            String         @id @default(uuid())
+  tenantId      String
+  name          String         // e.g. "Hwange Sector 7 Anti-Poaching Patrol"
+  description   String
+  type          ProjectType
+  targetMetric  Float          // e.g. 500 (patrol hours or trees)
+  currentMetric Float          @default(0)
+  unit          String         // "hours", "trees", "liters", "hectares"
+  imageUrl      String?
+  latitude      Float?
+  longitude     Float?
+  milestones    Milestone[]
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([tenantId])
+}
+
+model Milestone {
+  id          String              @id @default(uuid())
+  projectId   String
+  title       String              // e.g. "Patrolled 60km perimeter - 0 snares detected"
+  description String
+  metricDelta Float               // e.g. +40 (hours or trees)
+  evidenceUrl String?             // Geo-tagged photo/video
+  latitude    Float?
+  longitude   Float?
+  verifiedBy  String?             // Ranger / Manager name
+  project     ConservationProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt   DateTime            @default(now())
+
+  @@index([projectId])
+}
+
+model OffsetProject {
+  id                String           @id @default(uuid())
+  tenantId          String
+  name              String           // e.g. "Hwange Village School Solar Microgrid"
+  description       String
+  pricePerTonne     Decimal          // e.g. 12.50 USD
+  totalCapacity     Decimal          // tonnes CO2
+  remainingCapacity Decimal          // tonnes CO2
+  registryId        String?          // e.g. "ZCR-2026-SOLAR-089"
+  zimbabweCampfirePct Float          @default(15.0) // 15% direct to CAMPFIRE community fund
+  imageUrl          String?
+  purchases         OffsetPurchase[]
+  tenant            Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@index([tenantId])
+}
+
+model OffsetPurchase {
+  id              String            @id @default(uuid())
+  offsetProjectId String
+  userId          String?
+  touristName     String
+  touristEmail    String
+  tonnes          Decimal           // tonnes CO2 offset
+  amountPaid      Decimal           // total USD paid
+  campfireShare   Decimal           // portion to community fund
+  certificateCode String            @unique // e.g. "WI-HW-2026-98124"
+  status          CertificateStatus @default(ISSUED)
+  paymentMethod   String            // "STRIPE" or "PAYNOW_ECOCASH"
+  project         OffsetProject     @relation(fields: [offsetProjectId], references: [id])
+  user            User?             @relation(fields: [userId], references: [id])
+  createdAt       DateTime          @default(now())
+
+  @@index([offsetProjectId])
+}
