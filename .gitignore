@@ -53,6 +53,8 @@ GoogleService-Info.plist
 .pub-cache/
 .pub/
 build/
+!build/web
+!build/web/**
 coverage/
 **/doc/api/
 **/ios/Flutter/.last_build_id
