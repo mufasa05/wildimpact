@@ -5,6 +5,10 @@ import '../domain/models/offset_purchase.dart';
 import '../domain/models/geospatial_data.dart';
 import '../domain/models/booking_contribution.dart';
 import '../domain/models/impact_evidence.dart';
+import '../domain/models/cultural_narrative.dart';
+import '../domain/models/accessibility_feature.dart';
+import '../domain/models/economic_leakage_data.dart';
+import '../domain/models/sme_provider.dart';
 
 class MockTourismData {
   static final List<TenantLodge> lodges = [
@@ -442,4 +446,192 @@ class MockTourismData {
     vegetationStatus: 'Healthy Canopy Moisture • Zero Encroachment',
     deforestationAlerts: 0,
   );
+
+  // --- CULTURAL LIVING HERITAGE ORAL ARCHIVES (Multi-Vocal RAG) ---
+  static List<CulturalNarrative> getCulturalNarratives() => [
+    const CulturalNarrative(
+      id: 'cn-01',
+      title: 'The Great Enclosure: Oral Songs of the Dry-Stone Builders',
+      location: 'Great Zimbabwe UNESCO Monument (Masvingo)',
+      elderName: 'Sekuru Munemo (Clan Custodian)',
+      communityName: 'Morgenster & Nemamwa Elders Council',
+      language: 'ChiShona',
+      audioDuration: '4:18 min',
+      audioUrl: 'https://cdn.wildimpact.org/audio/great_zim_builders.mp3',
+      transcript: 'The granite stones were not placed by slaves or strangers. Our ancestors used the fire-and-water method to quarry granite blocks with precision without a drop of mortar. The walls breathe in harmony with the summer breezes.',
+      spiritualContext: 'A consecrated tribute to Mwari (The Creator) and ancestral guardian spirits of the Hungwe bird.',
+      royaltyEarnedUsd: 482.50,
+      totalListens: 965,
+      coverImageUrl: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=600&q=80',
+    ),
+    const CulturalNarrative(
+      id: 'cn-02',
+      title: 'Njelele Shrine & The Rainmaking Ceremonies of Matobo',
+      location: 'Matobo Sacred Granite Hills (Matabeleland)',
+      elderName: 'Gogo Sibanda (Spiritual Keeper)',
+      communityName: 'Dula & Silozwe Community Trust',
+      language: 'SiNdebele',
+      audioDuration: '5:42 min',
+      audioUrl: 'https://cdn.wildimpact.org/audio/matobo_njelele.mp3',
+      transcript: 'When the heat of October settles over the rocks, the elders walk barefoot into the inner caves of Njelele. No modern metals are carried. We ask for rain through the voice that echoes through the granite domes.',
+      spiritualContext: 'Sacred oracle shrine where national peace and agricultural abundance are prayed for.',
+      royaltyEarnedUsd: 394.00,
+      totalListens: 788,
+      coverImageUrl: 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=600&q=80',
+    ),
+    const CulturalNarrative(
+      id: 'cn-03',
+      title: 'Mosi-oa-Tunya: Nyami Nyami and the Smoke That Thunders',
+      location: 'Victoria Falls / Zambezi River',
+      elderName: 'Elder Simasiku (BaTonga River Guide)',
+      communityName: 'Chidobe & Mukuni Traditional Ward',
+      language: 'ChiTonga',
+      audioDuration: '3:50 min',
+      audioUrl: 'https://cdn.wildimpact.org/audio/nyami_nyami.mp3',
+      transcript: 'Long before European cartographers drew their lines, our grandfathers worshipped the river dragon Nyami Nyami whose scales keep the Zambezi flowing and safeguard the fishing grounds.',
+      spiritualContext: 'Riverine ecology guardian folklore teaching sustainable fishing and water respect.',
+      royaltyEarnedUsd: 612.00,
+      totalListens: 1224,
+      coverImageUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=600&q=80',
+    ),
+  ];
+
+  // --- UNIVERSAL ACCESSIBILITY & MOBILITY GIS ---
+  static List<AccessibilityFeature> getAccessibilityFeatures() => [
+    const AccessibilityFeature(
+      id: 'acc-01',
+      name: 'Victoria Falls Rainforest Paved Canopy Trail',
+      destinationName: 'Victoria Falls National Park',
+      location: 'Livingstone Viewpoint to Cataract Island',
+      grade: AccessibilityGrade.grade1,
+      slopeInclinePct: 3.2,
+      stepCount: 0,
+      hasTactilePaving: true,
+      hasAccessibleAblution: true,
+      hasAudioGuide: true,
+      hasMountingPlatform: true,
+      latitude: -17.9244,
+      longitude: 25.8560,
+      notes: '100% paved tarmac boardwalk with wheelchair resting bays and tactile stone warning strips.',
+    ),
+    const AccessibilityFeature(
+      id: 'acc-02',
+      name: 'Great Zimbabwe Valley Enclosure Lower Ramp',
+      destinationName: 'Great Zimbabwe Heritage Site',
+      location: 'Museum Reception to Lower Valley Ruins',
+      grade: AccessibilityGrade.grade2,
+      slopeInclinePct: 6.5,
+      stepCount: 4,
+      hasTactilePaving: false,
+      hasAccessibleAblution: true,
+      hasAudioGuide: true,
+      hasMountingPlatform: false,
+      latitude: -20.2742,
+      longitude: 30.9338,
+      notes: 'Compacted decomposed granite ramp; motorized chairs recommended for hill ascent.',
+    ),
+    const AccessibilityFeature(
+      id: 'acc-03',
+      name: 'Hwange Main Camp Waterhole Viewing Deck',
+      destinationName: 'Hwange National Park',
+      location: 'Main Safari Camp Lookout',
+      grade: AccessibilityGrade.grade1,
+      slopeInclinePct: 2.1,
+      stepCount: 0,
+      hasTactilePaving: true,
+      hasAccessibleAblution: true,
+      hasAudioGuide: false,
+      hasMountingPlatform: true,
+      latitude: -18.7390,
+      longitude: 26.9610,
+      notes: 'Elevated timber boardwalk with hydraulic vehicle transfer platform for game drive boarding.',
+    ),
+  ];
+
+  // --- NATIONAL ECONOMIC LEAKAGE & LOCAL RETENTION (ZTA) ---
+  static List<EconomicLeakageMetric> getEconomicLeakageMetrics() => [
+    const EconomicLeakageMetric(
+      region: 'Nyanga Eastern Highlands',
+      averageDailyTouristSpendUsd: 187.00,
+      localResidentRetentionUsd: 24.00,
+      foreignOtaLeakageUsd: 122.00,
+      campfireCommunityShareUsd: 26.00,
+      directInformalSmeSpendUsd: 15.00,
+      keyBottleneck: 'Centralized offshore booking engines capturing 65%+ before arrival; low local procurement.',
+      interventionStrategy: 'Direct WhatsApp SME marketplace + verified CAMPFIRE accommodation surcharge splits.',
+    ),
+    const EconomicLeakageMetric(
+      region: 'Victoria Falls Hub',
+      averageDailyTouristSpendUsd: 420.00,
+      localResidentRetentionUsd: 92.00,
+      foreignOtaLeakageUsd: 248.00,
+      campfireCommunityShareUsd: 50.00,
+      directInformalSmeSpendUsd: 30.00,
+      keyBottleneck: 'Airfare & corporate hotel chain leakage; limited direct artisan linkages.',
+      interventionStrategy: 'ZimTour Instant Community Discovery badge & local craft provenance QR tags.',
+    ),
+    const EconomicLeakageMetric(
+      region: 'Matobo & Great Zimbabwe',
+      averageDailyTouristSpendUsd: 145.00,
+      localResidentRetentionUsd: 48.00,
+      foreignOtaLeakageUsd: 62.00,
+      campfireCommunityShareUsd: 20.00,
+      directInformalSmeSpendUsd: 15.00,
+      keyBottleneck: 'Day-tripper pattern with minimal overnight spend in surrounding rural villages.',
+      interventionStrategy: 'Multi-vocal oral history pay-per-listen royalties + community homestay listings.',
+    ),
+  ];
+
+  // --- INFORMAL COMMUNITY SME MARKETPLACE ---
+  static List<SmeProvider> getSmeProviders() => [
+    const SmeProvider(
+      id: 'sme-01',
+      businessName: 'Nyanga Highland Organic Honey & Herbal Guild',
+      category: 'Artisan Craft',
+      location: 'Juliasdale, Nyanga',
+      ownerName: 'Mai Ruvimbo Chisango',
+      whatsappNumber: '+263772849102',
+      startingPriceUsd: 8.00,
+      priceUnit: 'per jar',
+      rating: 4.9,
+      reviewCount: 42,
+      isZtaRegistered: true,
+      isEcoCertified: true,
+      description: 'Pure wild mountain honey harvested sustainably from indigenous forest hives without harming tree canopies.',
+      imageUrl: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=600&q=80',
+    ),
+    const SmeProvider(
+      id: 'sme-02',
+      businessName: 'Morgenster Shona Stone Carving Cooperative',
+      category: 'Artisan Craft',
+      location: 'Nemamwa Village, Masvingo',
+      ownerName: 'Tonderai Chikwava',
+      whatsappNumber: '+263714930192',
+      startingPriceUsd: 25.00,
+      priceUnit: 'per sculpture',
+      rating: 5.0,
+      reviewCount: 68,
+      isZtaRegistered: true,
+      isEcoCertified: true,
+      description: 'Hand-sculpted Serpentine and Verdite stone bird figurines certified by the Great Zimbabwe Heritage Trust.',
+      imageUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=600&q=80',
+    ),
+    const SmeProvider(
+      id: 'sme-03',
+      businessName: 'Dete Traditional Homestay & Storytelling',
+      category: 'Village Homestay',
+      location: 'Dete Rural District, Hwange',
+      ownerName: 'Baba Vundla',
+      whatsappNumber: '+263775928103',
+      startingPriceUsd: 35.00,
+      priceUnit: 'per night with traditional meals',
+      rating: 4.8,
+      reviewCount: 31,
+      isZtaRegistered: true,
+      isEcoCertified: true,
+      description: 'Authentic village experience including traditional millet sadza cooking, evening campfire folklore and drum sessions.',
+      imageUrl: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=600&q=80',
+    ),
+  ];
 }
+

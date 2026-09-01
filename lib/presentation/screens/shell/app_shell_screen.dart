@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/eco_colors.dart';
 import '../../../core/widgets/role_selector_app_bar.dart';
 import '../../providers/tourism_providers.dart';
+import '../intelligence/national_intelligence_screen.dart';
+import '../heritage/cultural_heritage_screen.dart';
+import '../accessibility/universal_accessibility_screen.dart';
+import '../providers/provider_onboarding_screen.dart';
 import '../operator/operator_overview_screen.dart';
 import '../operator/bookings_screen.dart';
 import '../operator/contributions_ledger_screen.dart';
@@ -13,7 +17,7 @@ import '../operator/esg_reporting_screen.dart';
 import '../guest/guest_welcome_screen.dart';
 import '../guest/guest_mobile_simulator_screen.dart';
 import '../guest/carbon_calculator_screen.dart';
-import '../guest/impact_certificate_screen.dart';
+import '../guest/impact_passport_screen.dart';
 import '../guest/gamification_badges_screen.dart';
 import '../showcase/platform_showcase_screen.dart';
 
@@ -32,14 +36,15 @@ class _AppShellScreenState extends ConsumerState<AppShellScreen> {
   Widget build(BuildContext context) {
     final role = ref.watch(activeRoleProvider);
     final isDesktop = MediaQuery.of(context).size.width >= 900;
+    final hasSidebar = isDesktop && (role == UserRole.operator || role == UserRole.guest);
 
     return Scaffold(
       backgroundColor: EcoColors.obsidianBg,
       appBar: const RoleSelectorAppBar(),
       body: Row(
         children: [
-          // Sidebar Nav for Desktop
-          if (isDesktop && role != UserRole.platformShowcase) _buildSidebar(role),
+          // Sidebar Nav for Operator & Guest multi-tab modules
+          if (hasSidebar) _buildSidebar(role),
 
           // Main Screen Body
           Expanded(
@@ -47,12 +52,26 @@ class _AppShellScreenState extends ConsumerState<AppShellScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: !isDesktop && role != UserRole.platformShowcase ? _buildBottomNav(role) : null,
+      bottomNavigationBar: !isDesktop && (role == UserRole.operator || role == UserRole.guest)
+          ? _buildBottomNav(role)
+          : null,
     );
   }
 
   Widget _buildActiveScreen(UserRole role) {
     switch (role) {
+      case UserRole.nationalZta:
+        return const NationalIntelligenceScreen();
+
+      case UserRole.culturalHeritage:
+        return const CulturalHeritageScreen();
+
+      case UserRole.accessibility:
+        return const UniversalAccessibilityScreen();
+
+      case UserRole.providerPortal:
+        return const ProviderOnboardingScreen();
+
       case UserRole.operator:
         switch (_operatorTabIndex) {
           case 0:
@@ -86,7 +105,7 @@ class _AppShellScreenState extends ConsumerState<AppShellScreen> {
           case 2:
             return CarbonCalculatorScreen(onNavigateGuestTab: (idx) => setState(() => _guestTabIndex = idx));
           case 3:
-            return const ImpactCertificateScreen();
+            return const ImpactPassportScreen();
           case 4:
             return const GamificationBadgesScreen();
           default:
@@ -100,9 +119,6 @@ class _AppShellScreenState extends ConsumerState<AppShellScreen> {
             setState(() => _operatorTabIndex = idx);
           },
         );
-
-      case UserRole.tourismBoard:
-        return const EsgReportingScreen();
     }
   }
 
@@ -123,7 +139,7 @@ class _AppShellScreenState extends ConsumerState<AppShellScreen> {
             {'icon': Icons.wb_sunny_rounded, 'label': 'Live Safari Impact'},
             {'icon': Icons.smartphone_rounded, 'label': 'Mobile App Simulator'},
             {'icon': Icons.calculate_rounded, 'label': 'Carbon Calculator'},
-            {'icon': Icons.workspace_premium_rounded, 'label': 'My Certificate'},
+            {'icon': Icons.badge_rounded, 'label': 'Impact Passport'},
             {'icon': Icons.military_tech_rounded, 'label': 'Badges & Ranks'},
           ];
 
@@ -142,9 +158,7 @@ class _AppShellScreenState extends ConsumerState<AppShellScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
             child: Text(
-              role == UserRole.operator
-                  ? 'OPERATOR COMMAND'
-                  : 'GUEST DISCOVERY',
+              role == UserRole.operator ? 'OPERATOR COMMAND' : 'GUEST EXPERIENCE',
               style: const TextStyle(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w800,
@@ -214,14 +228,14 @@ class _AppShellScreenState extends ConsumerState<AppShellScreen> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: EcoColors.cardBorder),
             ),
-            child: Row(
+            child: const Row(
               children: [
-                const Icon(Icons.shield_moon_rounded, color: EcoColors.savannaGold, size: 18),
-                const SizedBox(width: 10),
+                Icon(Icons.shield_moon_rounded, color: EcoColors.savannaGold, size: 18),
+                SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text('ZCR & CAMPFIRE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: EcoColors.textPrimaryLight)),
                       Text('100% Impact Verified', style: TextStyle(fontSize: 9.5, color: EcoColors.textMuted)),
                     ],
@@ -265,7 +279,7 @@ class _AppShellScreenState extends ConsumerState<AppShellScreen> {
         BottomNavigationBarItem(icon: Icon(Icons.wb_sunny_rounded), label: 'Impact'),
         BottomNavigationBarItem(icon: Icon(Icons.smartphone_rounded), label: 'App'),
         BottomNavigationBarItem(icon: Icon(Icons.calculate_rounded), label: 'Carbon'),
-        BottomNavigationBarItem(icon: Icon(Icons.workspace_premium_rounded), label: 'Cert'),
+        BottomNavigationBarItem(icon: Icon(Icons.badge_rounded), label: 'Passport'),
         BottomNavigationBarItem(icon: Icon(Icons.military_tech_rounded), label: 'Badges'),
       ],
     );

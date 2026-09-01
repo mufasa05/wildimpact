@@ -247,3 +247,97 @@ VALUES
 ('bc-04', 'pamushana-malilangwe', 'Sunset Walking Safari & Ranger Tracking', 280.00, '2 days ago', 'Elena Rostova', 1, 'Verified', 0.6, 'Anti-Poaching'),
 ('bc-05', 'pamushana-malilangwe', 'Save Valley Conservation Immersion Tour', 520.00, '3 days ago', 'Jonathan Sterling', 2, 'Allocated', 1.7, 'Habitat Restoration')
 ON CONFLICT (id) DO NOTHING;
+
+-- ==============================================================================
+-- 10. CULTURAL LIVING HERITAGE ORAL RECORDS (Multi-Vocal RAG)
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.cultural_oral_records (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    location TEXT NOT NULL,
+    elder_name TEXT NOT NULL,
+    community_name TEXT NOT NULL,
+    language TEXT NOT NULL DEFAULT 'ChiShona',
+    audio_duration TEXT NOT NULL,
+    audio_url TEXT NOT NULL,
+    transcript TEXT NOT NULL,
+    spiritual_context TEXT NOT NULL,
+    royalty_earned_usd NUMERIC(10, 2) NOT NULL DEFAULT 0.0,
+    total_listens INTEGER NOT NULL DEFAULT 0,
+    cover_image_url TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ==============================================================================
+-- 11. UNIVERSAL ACCESSIBILITY & MOBILITY GIS
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.accessibility_features (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    destination_name TEXT NOT NULL,
+    location TEXT NOT NULL,
+    grade TEXT NOT NULL DEFAULT 'grade1',
+    slope_incline_pct NUMERIC(5, 2) NOT NULL DEFAULT 0.0,
+    step_count INTEGER NOT NULL DEFAULT 0,
+    has_tactile_paving BOOLEAN NOT NULL DEFAULT false,
+    has_accessible_ablution BOOLEAN NOT NULL DEFAULT true,
+    has_audio_guide BOOLEAN NOT NULL DEFAULT true,
+    has_mounting_platform BOOLEAN NOT NULL DEFAULT false,
+    latitude NUMERIC(10, 6) NOT NULL,
+    longitude NUMERIC(10, 6) NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ==============================================================================
+-- 12. ECONOMIC LEAKAGE & LOCAL RETENTION LOGS (ZTA National Intelligence)
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.economic_leakage_logs (
+    id TEXT PRIMARY KEY,
+    region TEXT NOT NULL,
+    average_daily_tourist_spend_usd NUMERIC(10, 2) NOT NULL,
+    local_resident_retention_usd NUMERIC(10, 2) NOT NULL,
+    foreign_ota_leakage_usd NUMERIC(10, 2) NOT NULL,
+    campfire_community_share_usd NUMERIC(10, 2) NOT NULL,
+    direct_informal_sme_spend_usd NUMERIC(10, 2) NOT NULL,
+    key_bottleneck TEXT NOT NULL,
+    intervention_strategy TEXT NOT NULL,
+    recorded_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ==============================================================================
+-- 13. INFORMAL COMMUNITY SME PROVIDERS
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.sme_providers (
+    id TEXT PRIMARY KEY,
+    business_name TEXT NOT NULL,
+    category TEXT NOT NULL,
+    location TEXT NOT NULL,
+    owner_name TEXT NOT NULL,
+    whatsapp_number TEXT NOT NULL,
+    starting_price_usd NUMERIC(10, 2) NOT NULL,
+    price_unit TEXT NOT NULL DEFAULT 'per booking',
+    rating NUMERIC(3, 2) NOT NULL DEFAULT 5.0,
+    review_count INTEGER NOT NULL DEFAULT 1,
+    is_zta_registered BOOLEAN NOT NULL DEFAULT true,
+    is_eco_certified BOOLEAN NOT NULL DEFAULT true,
+    description TEXT NOT NULL,
+    image_url TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Realtime & RLS Policies for New Tables
+ALTER TABLE public.cultural_oral_records ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.accessibility_features ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.economic_leakage_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sme_providers ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public Read Cultural" ON public.cultural_oral_records FOR SELECT USING (true);
+CREATE POLICY "Public Read Accessibility" ON public.accessibility_features FOR SELECT USING (true);
+CREATE POLICY "Public Read Leakage" ON public.economic_leakage_logs FOR SELECT USING (true);
+CREATE POLICY "Public Read SMEs" ON public.sme_providers FOR SELECT USING (true);
+CREATE POLICY "Allow Insert SMEs" ON public.sme_providers FOR INSERT WITH CHECK (true);
+
+ALTER PUBLICATION supabase_realtime ADD TABLE public.cultural_oral_records;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.sme_providers;
+

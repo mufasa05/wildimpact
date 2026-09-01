@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/eco_colors.dart';
 import '../../presentation/providers/tourism_providers.dart';
+import '../../presentation/screens/auth/auth_modal_sheet.dart';
 
 class RoleSelectorAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const RoleSelectorAppBar({super.key});
@@ -14,15 +15,16 @@ class RoleSelectorAppBar extends ConsumerWidget implements PreferredSizeWidget {
     final currentRole = ref.watch(activeRoleProvider);
     final lodges = ref.watch(allLodgesProvider);
     final selectedLodgeId = ref.watch(selectedLodgeIdProvider);
+    final currentProfile = ref.watch(currentUserProfileProvider);
     final screenWidth = MediaQuery.of(context).size.width;
-    final isCompact = screenWidth < 1050;
-    final isMobile = screenWidth < 800;
-    final isTiny = screenWidth < 450;
+    final isCompact = screenWidth < 1200;
+    final isMobile = screenWidth < 900;
+    final isTiny = screenWidth < 600;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: isTiny ? 8 : 14, vertical: 6),
       decoration: BoxDecoration(
-        color: EcoColors.obsidianBg.withValues(alpha: 0.95),
+        color: EcoColors.obsidianBg.withValues(alpha: 0.98),
         border: const Border(
           bottom: BorderSide(color: EcoColors.cardBorder, width: 1),
         ),
@@ -33,7 +35,7 @@ class RoleSelectorAppBar extends ConsumerWidget implements PreferredSizeWidget {
           children: [
             // Brand Logo & Title
             Container(
-              padding: const EdgeInsets.all(6),
+              padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 gradient: EcoColors.emeraldGradient,
                 borderRadius: BorderRadius.circular(8),
@@ -45,13 +47,13 @@ class RoleSelectorAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(5),
                 child: Image.asset(
                   'assets/images/wildimpact_logo.jpg',
-                  width: 20,
-                  height: 20,
+                  width: 26,
+                  height: 26,
                   fit: BoxFit.cover,
-                  errorBuilder: (c, e, s) => const Icon(Icons.park_rounded, color: Colors.black, size: 16),
+                  errorBuilder: (c, e, s) => const Icon(Icons.park_rounded, color: Colors.black, size: 20),
                 ),
               ),
             ),
@@ -64,21 +66,29 @@ class RoleSelectorAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 children: [
                   Text.rich(
                     TextSpan(
-                      text: 'WILDIMPACT',
+                      text: 'ZIMTOUR',
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w900,
-                        letterSpacing: 0.6,
+                        letterSpacing: 0.8,
                         color: EcoColors.textPrimaryLight,
                       ),
                       children: [
+                        const TextSpan(
+                          text: ' • WILDIMPACT',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: EcoColors.mintAccent,
+                          ),
+                        ),
                         if (!isMobile)
                           const TextSpan(
-                            text: ' • Eco-Impact B2B',
+                            text: ' | National Intelligence OS',
                             style: TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w700,
-                              color: EcoColors.mintAccent,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: EcoColors.savannaGold,
                             ),
                           ),
                       ],
@@ -88,7 +98,7 @@ class RoleSelectorAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   ),
                   if (!isCompact)
                     const Text(
-                      'Multi-tenant SaaS for Safari Operators, Conservation & Communities',
+                      'Universal Tourism Intelligence, Living Heritage, Accessibility & Safari ESG Platform',
                       style: TextStyle(fontSize: 10.5, color: EcoColors.textSecondaryLight),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -97,10 +107,10 @@ class RoleSelectorAppBar extends ConsumerWidget implements PreferredSizeWidget {
               ),
             ),
 
-            // Lodge Selector Dropdown (Desktop)
-            if (!isCompact) ...[
+            // Lodge Selector Dropdown (When in Operator mode)
+            if (!isCompact && currentRole == UserRole.operator) ...[
               Container(
-                height: 36,
+                height: 34,
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 decoration: BoxDecoration(
                   color: EcoColors.darkCardBg,
@@ -114,7 +124,7 @@ class RoleSelectorAppBar extends ConsumerWidget implements PreferredSizeWidget {
                     icon: const Icon(Icons.keyboard_arrow_down_rounded, color: EcoColors.mintAccent, size: 16),
                     style: const TextStyle(
                       color: EcoColors.textPrimaryLight,
-                      fontSize: 12,
+                      fontSize: 11.5,
                       fontWeight: FontWeight.w600,
                     ),
                     items: lodges.map((l) {
@@ -137,26 +147,62 @@ class RoleSelectorAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
             ],
 
-            // Role Switcher Segmented Buttons
-            Container(
-              height: 34,
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: EcoColors.cardBorder),
+            // Role Switcher Segmented Buttons (Scrollable on small screens)
+            Flexible(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Container(
+                  height: 34,
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: EcoColors.cardBorder),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildRoleBtn(context, ref, UserRole.nationalZta, 'ZTA Intel', Icons.analytics_rounded, currentRole, isTiny),
+                      _buildRoleBtn(context, ref, UserRole.culturalHeritage, 'Living Heritage', Icons.record_voice_over_rounded, currentRole, isTiny),
+                      _buildRoleBtn(context, ref, UserRole.accessibility, 'Accessibility', Icons.accessible_rounded, currentRole, isTiny),
+                      _buildRoleBtn(context, ref, UserRole.operator, 'Lodge Hub', Icons.cottage_rounded, currentRole, isTiny),
+                      _buildRoleBtn(context, ref, UserRole.providerPortal, 'SME Portal', Icons.handshake_rounded, currentRole, isTiny),
+                      _buildRoleBtn(context, ref, UserRole.guest, 'Guest App', Icons.smartphone_rounded, currentRole, isTiny),
+                      _buildRoleBtn(context, ref, UserRole.platformShowcase, 'Deck', Icons.auto_awesome_rounded, currentRole, isTiny),
+                    ],
+                  ),
+                ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildRoleBtn(context, ref, UserRole.operator, 'Operator', Icons.dashboard_rounded, currentRole, isMobile),
-                  _buildRoleBtn(context, ref, UserRole.guest, 'Guest App', Icons.smartphone_rounded, currentRole, isMobile),
-                  _buildRoleBtn(context, ref, UserRole.platformShowcase, 'Showcase', Icons.auto_awesome_rounded, currentRole, isMobile),
-                  _buildRoleBtn(context, ref, UserRole.tourismBoard, 'Audit', Icons.verified_user_rounded, currentRole, isMobile),
-                ],
+            ),
+            const SizedBox(width: 8),
+
+            // Profile / Auth Avatar Button
+            InkWell(
+              onTap: () => AuthModalSheet.show(context),
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                decoration: BoxDecoration(
+                  color: EcoColors.forestDeep.withValues(alpha: 0.7),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: EcoColors.cardBorder),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(currentProfile.persona.emoji, style: const TextStyle(fontSize: 14)),
+                    if (!isTiny) ...[
+                      const SizedBox(width: 4),
+                      Text(
+                        currentProfile.fullName.split(' ')[0],
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: EcoColors.mintAccent),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ),
           ],
@@ -172,7 +218,7 @@ class RoleSelectorAppBar extends ConsumerWidget implements PreferredSizeWidget {
     String label,
     IconData icon,
     UserRole currentRole,
-    bool isMobile,
+    bool isTiny,
   ) {
     final isSelected = currentRole == role;
     return InkWell(
@@ -181,9 +227,9 @@ class RoleSelectorAppBar extends ConsumerWidget implements PreferredSizeWidget {
       },
       borderRadius: BorderRadius.circular(6),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 150),
         padding: EdgeInsets.symmetric(
-          horizontal: isMobile ? 6 : 8,
+          horizontal: isTiny ? 6 : 8,
           vertical: 4,
         ),
         decoration: BoxDecoration(
@@ -198,13 +244,13 @@ class RoleSelectorAppBar extends ConsumerWidget implements PreferredSizeWidget {
               size: 13,
               color: isSelected ? Colors.black : EcoColors.textSecondaryLight,
             ),
-            if (!isMobile) ...[
+            if (!isTiny) ...[
               const SizedBox(width: 4),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                   color: isSelected ? Colors.black : EcoColors.textSecondaryLight,
                 ),
               ),

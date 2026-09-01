@@ -81,13 +81,19 @@ void main() {
     });
 
     test('Switching User Role toggles activeRoleProvider state correctly', () {
-      expect(container.read(activeRoleProvider), equals(UserRole.operator));
+      expect(container.read(activeRoleProvider), equals(UserRole.nationalZta));
 
       container.read(activeRoleProvider.notifier).state = UserRole.guest;
       expect(container.read(activeRoleProvider), equals(UserRole.guest));
 
-      container.read(activeRoleProvider.notifier).state = UserRole.tourismBoard;
-      expect(container.read(activeRoleProvider), equals(UserRole.tourismBoard));
+      container.read(activeRoleProvider.notifier).state = UserRole.culturalHeritage;
+      expect(container.read(activeRoleProvider), equals(UserRole.culturalHeritage));
+
+      container.read(activeRoleProvider.notifier).state = UserRole.accessibility;
+      expect(container.read(activeRoleProvider), equals(UserRole.accessibility));
+
+      container.read(activeRoleProvider.notifier).state = UserRole.nationalZta;
+      expect(container.read(activeRoleProvider), equals(UserRole.nationalZta));
     });
 
     test('Switching Lodge updates selectedLodgeProvider context', () {

@@ -7,6 +7,11 @@ import '../domain/models/booking_contribution.dart';
 import '../domain/models/impact_evidence.dart';
 import 'mock_tourism_data.dart';
 
+import '../domain/models/cultural_narrative.dart';
+import '../domain/models/accessibility_feature.dart';
+import '../domain/models/economic_leakage_data.dart';
+import '../domain/models/sme_provider.dart';
+
 class TourismRepository {
   final List<TenantLodge> _lodges = List.from(MockTourismData.lodges);
   final List<ConservationProject> _projects = MockTourismData.getInitialProjects();
@@ -14,6 +19,10 @@ class TourismRepository {
   final List<OffsetPurchase> _purchases = MockTourismData.getInitialPurchases();
   final List<BookingContribution> _contributions = MockTourismData.getInitialContributions();
   final List<ImpactEvidence> _evidence = MockTourismData.getInitialEvidence();
+  final List<CulturalNarrative> _culturalNarratives = MockTourismData.getCulturalNarratives();
+  final List<AccessibilityFeature> _accessibilityFeatures = MockTourismData.getAccessibilityFeatures();
+  final List<EconomicLeakageMetric> _leakageMetrics = MockTourismData.getEconomicLeakageMetrics();
+  final List<SmeProvider> _smeProviders = MockTourismData.getSmeProviders();
 
   List<TenantLodge> getLodges() => _lodges;
 
@@ -34,6 +43,18 @@ class TourismRepository {
   List<BookingContribution> getContributions() => _contributions;
 
   List<ImpactEvidence> getImpactEvidence() => _evidence;
+
+  List<CulturalNarrative> getCulturalNarratives() => _culturalNarratives;
+
+  List<AccessibilityFeature> getAccessibilityFeatures() => _accessibilityFeatures;
+
+  List<EconomicLeakageMetric> getEconomicLeakageMetrics() => _leakageMetrics;
+
+  List<SmeProvider> getSmeProviders() => _smeProviders;
+
+  void addSmeProvider(SmeProvider provider) {
+    _smeProviders.insert(0, provider);
+  }
 
   void addContribution(BookingContribution contribution) {
     _contributions.insert(0, contribution);
@@ -109,3 +130,4 @@ class TourismRepository {
   List<WildlifeSighting> getWildlifeSightings() => MockTourismData.getWildlifeSightings();
   SatelliteHealthLayer getSatelliteHealth() => MockTourismData.satelliteNdvi;
 }
+
