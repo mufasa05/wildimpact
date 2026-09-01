@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'presentation/screens/shell/app_shell_screen.dart';
 
-void main() {
+import 'core/services/supabase_service.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SupabaseService.instance.initialize();
   runApp(
     const ProviderScope(
       child: WildImpactApp(),

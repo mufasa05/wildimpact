@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/tourism_repository.dart';
+import '../../data/supabase_tourism_repository.dart';
 import '../../domain/models/tenant_lodge.dart';
 import '../../domain/models/conservation_project.dart';
 import '../../domain/models/carbon_offset_project.dart';
@@ -20,7 +21,7 @@ enum UserRole {
 }
 
 final tourismRepositoryProvider = Provider<TourismRepository>((ref) {
-  return TourismRepository();
+  return SupabaseTourismRepository();
 });
 
 final activeRoleProvider = StateProvider<UserRole>((ref) {
