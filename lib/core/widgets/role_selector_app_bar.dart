@@ -44,7 +44,16 @@ class RoleSelectorAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   ),
                 ],
               ),
-              child: const Icon(Icons.park_rounded, color: Colors.black, size: 16),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Image.asset(
+                  'assets/images/wildimpact_logo.jpg',
+                  width: 20,
+                  height: 20,
+                  fit: BoxFit.cover,
+                  errorBuilder: (c, e, s) => const Icon(Icons.park_rounded, color: Colors.black, size: 16),
+                ),
+              ),
             ),
             const SizedBox(width: 8),
             Expanded(
