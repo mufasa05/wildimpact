@@ -9,11 +9,11 @@ class CulturalNarrative {
   final String audioUrl;
   final String transcript;
   final String spiritualContext;
-  final double royaltyEarnedUsd;
-  final int totalListens;
+  double royaltyEarnedUsd;
+  int totalListens;
   final String coverImageUrl;
 
-  const CulturalNarrative({
+  CulturalNarrative({
     required this.id,
     required this.title,
     required this.location,

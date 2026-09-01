@@ -4,8 +4,12 @@ import '../../../core/theme/eco_colors.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/immersive_background_scaffold.dart';
 import '../../../core/widgets/safari_glow_button.dart';
+import '../../../core/widgets/trail_elevation_chart.dart';
+import '../../../core/widgets/artisan_commission_modal.dart';
+import '../../../core/widgets/report_obstacle_modal.dart';
 import '../../../domain/models/accessibility_feature.dart';
 import '../../../domain/models/sme_provider.dart';
+import '../../../domain/models/trail_elevation_data.dart';
 import '../../providers/tourism_providers.dart';
 
 class UniversalAccessibilityScreen extends ConsumerStatefulWidget {
@@ -20,6 +24,13 @@ class UniversalAccessibilityScreen extends ConsumerStatefulWidget {
 
 class _UniversalAccessibilityScreenState extends ConsumerState<UniversalAccessibilityScreen> {
   AccessibilityGrade? _selectedGradeFilter;
+  late TrailRouteAnalysis _activeTrail;
+
+  @override
+  void initState() {
+    super.initState();
+    _activeTrail = TrailRouteAnalysis.getVicFallsRainforestTrail();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +52,65 @@ class _UniversalAccessibilityScreenState extends ConsumerState<UniversalAccessib
             _buildAccessibilityHeader(context),
             const SizedBox(height: 20),
 
+            // Live GIS Trail Elevation & Slope Analyzer
+            TrailElevationChart(
+              trailAnalysis: _activeTrail,
+            ),
+            const SizedBox(height: 12),
+
+            // Trail Selector & Report Obstacle Action Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    ChoiceChip(
+                      label: const Text('Vic Falls Cataract Trail'),
+                      selected: _activeTrail.trailId == 'vic-falls-rainforest',
+                      selectedColor: EcoColors.mintAccent,
+                      labelStyle: TextStyle(
+                        fontSize: 11,
+                        color: _activeTrail.trailId == 'vic-falls-rainforest' ? Colors.black : Colors.white70,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      onSelected: (v) {
+                        if (v) setState(() => _activeTrail = TrailRouteAnalysis.getVicFallsRainforestTrail());
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    ChoiceChip(
+                      label: const Text('Great Zimbabwe Terraces'),
+                      selected: _activeTrail.trailId == 'great-zim-hill',
+                      selectedColor: EcoColors.mintAccent,
+                      labelStyle: TextStyle(
+                        fontSize: 11,
+                        color: _activeTrail.trailId == 'great-zim-hill' ? Colors.black : Colors.white70,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      onSelected: (v) {
+                        if (v) setState(() => _activeTrail = TrailRouteAnalysis.getGreatZimbabweHillEnclosureTrail());
+                      },
+                    ),
+                  ],
+                ),
+                TextButton.icon(
+                  onPressed: () {
+                    ReportObstacleModal.show(
+                      context,
+                      trailId: _activeTrail.trailId,
+                      trailName: _activeTrail.trailName,
+                      onObstacleReported: (rep) {
+                        // obstacle added to active session
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.report_problem_rounded, color: EcoColors.sunsetGlow, size: 16),
+                  label: const Text('Report Trail Barrier', style: TextStyle(color: EcoColors.sunsetGlow, fontSize: 11.5, fontWeight: FontWeight.w800)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+
             // Grade Filters
             _buildGradeFilters(),
             const SizedBox(height: 16),
@@ -58,7 +128,7 @@ class _UniversalAccessibilityScreenState extends ConsumerState<UniversalAccessib
             _buildMarketplaceHeader(context),
             const SizedBox(height: 14),
 
-            // SME Cards
+            // SME Cards with Direct Custom Commission Dialogs
             ...smes.map((sme) => _buildSmeCard(context, sme)),
             const SizedBox(height: 30),
           ],
@@ -208,7 +278,6 @@ class _UniversalAccessibilityScreenState extends ConsumerState<UniversalAccessib
             ),
             const SizedBox(height: 10),
 
-            // Incline & Feature Badges
             Wrap(
               spacing: 8,
               runSpacing: 6,
@@ -267,7 +336,7 @@ class _UniversalAccessibilityScreenState extends ConsumerState<UniversalAccessib
                   style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: EcoColors.savannaGold),
                 ),
                 Text(
-                  'Direct 0%-commission WhatsApp booking connecting tourists directly to rural craftspeople & village homestays.',
+                  'Direct 0%-commission WhatsApp booking and custom Shona sculpture commissioning connecting tourists directly to rural craftspeople.',
                   style: TextStyle(fontSize: 11.5, color: EcoColors.textSecondaryLight),
                 ),
               ],
@@ -322,17 +391,39 @@ class _UniversalAccessibilityScreenState extends ConsumerState<UniversalAccessib
               ),
             ),
             const SizedBox(width: 12),
-            SafariGlowButton(
-              text: 'WhatsApp',
-              icon: Icons.chat_bubble_outline_rounded,
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Opening direct WhatsApp inquiry to ${sme.ownerName} (${sme.whatsappNumber}) - 0% fee'),
-                    backgroundColor: EcoColors.forestDeep,
+            Column(
+              children: [
+                SafariGlowButton(
+                  text: 'WhatsApp',
+                  icon: Icons.chat_bubble_outline_rounded,
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Opening direct WhatsApp inquiry to ${sme.ownerName} (${sme.whatsappNumber}) - 0% fee'),
+                        backgroundColor: EcoColors.forestDeep,
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 6),
+                if (sme.category.contains('Artisan') || sme.category.contains('Craft'))
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      ArtisanCommissionModal.show(
+                        context,
+                        artisanName: sme.ownerName,
+                        artisanVillage: sme.location,
+                        artisanWhatsApp: sme.whatsappNumber,
+                      );
+                    },
+                    icon: const Icon(Icons.handyman_rounded, size: 13, color: EcoColors.savannaGold),
+                    label: const Text('Custom Carving', style: TextStyle(fontSize: 10.5, color: EcoColors.savannaGold, fontWeight: FontWeight.w800)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: EcoColors.savannaGold),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    ),
                   ),
-                );
-              },
+              ],
             ),
           ],
         ),

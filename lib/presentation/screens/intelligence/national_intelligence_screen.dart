@@ -5,20 +5,35 @@ import '../../../core/theme/eco_colors.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/immersive_background_scaffold.dart';
 import '../../../core/widgets/safari_glow_button.dart';
+import '../../../domain/models/policy_simulation.dart';
 import '../../providers/tourism_providers.dart';
 
-class NationalIntelligenceScreen extends ConsumerWidget {
+class NationalIntelligenceScreen extends ConsumerStatefulWidget {
   const NationalIntelligenceScreen({super.key});
 
   static const String backgroundUrl =
       'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=1600&q=80';
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NationalIntelligenceScreen> createState() => _NationalIntelligenceScreenState();
+}
+
+class _NationalIntelligenceScreenState extends ConsumerState<NationalIntelligenceScreen> {
+  late ZtaPolicySimulation _policySim;
+
+  @override
+  void initState() {
+    super.initState();
+    _policySim = ZtaPolicySimulation();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final leakageMetrics = ref.watch(economicLeakageMetricsProvider);
+    final monthlyPoints = _policySim.generate12MonthProjection();
 
     return ImmersiveBackgroundScaffold(
-      imageUrl: backgroundUrl,
+      imageUrl: NationalIntelligenceScreen.backgroundUrl,
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Column(
@@ -27,6 +42,10 @@ class NationalIntelligenceScreen extends ConsumerWidget {
             // Top Header & ZTA Banner
             _buildZtaHeader(context),
             const SizedBox(height: 20),
+
+            // Interactive ZTA Macro Policy Simulator Sandbox
+            _buildPolicySimulatorSandbox(context, monthlyPoints),
+            const SizedBox(height: 24),
 
             // Empirical Economic Leakage Index (Nyanga $187 vs $24)
             _buildEconomicLeakageSection(context, leakageMetrics),
@@ -77,7 +96,7 @@ class NationalIntelligenceScreen extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      'National Tourism Intelligence & Spatial Flow Layer',
+                      'National Tourism Intelligence & Policy Simulation Sandbox',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
@@ -88,12 +107,12 @@ class NationalIntelligenceScreen extends ConsumerWidget {
                 ),
               ),
               SafariGlowButton(
-                text: 'Export National Report',
+                text: 'Export Simulation PDF',
                 icon: Icons.download_rounded,
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('ZTA Q3 National Intelligence Brief downloaded (PDF/CSV)'),
+                      content: Text('ZTA Macro Economic Policy Brief downloaded (PDF/CSV)'),
                       backgroundColor: EcoColors.forestDeep,
                     ),
                   );
@@ -106,6 +125,271 @@ class NationalIntelligenceScreen extends ConsumerWidget {
             'Live aggregated intelligence synthesizing visitor GPS telemetry, accommodation capacity utilization, and community economic retention across all 10 provinces.',
             style: TextStyle(fontSize: 12.5, color: EcoColors.textSecondaryLight, height: 1.4),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPolicySimulatorSandbox(BuildContext context, List<MonthlyProjectionPoint> monthlyPoints) {
+    return GlassCard(
+      padding: const EdgeInsets.all(22),
+      border: BorderSide(color: EcoColors.mintAccent.withValues(alpha: 0.5), width: 1.5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.tune_rounded, color: EcoColors.mintAccent, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'ZTA MACROECONOMIC POLICY SIMULATOR & PREDICTIVE SANDBOX',
+                    style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, letterSpacing: 0.8, color: EcoColors.mintAccent),
+                  ),
+                ],
+              ),
+              TextButton(
+                onPressed: () => setState(() => _policySim.resetToDefaults()),
+                child: const Text('Reset Defaults', style: TextStyle(color: Colors.white54, fontSize: 11)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Policy Sliders
+          Row(
+            children: [
+              Expanded(
+                child: _buildSliderTile(
+                  label: 'CAMPFIRE Community Levy',
+                  value: _policySim.campfireLevyPct,
+                  min: 0,
+                  max: 50,
+                  unit: '%',
+                  onChanged: (v) => setState(() => _policySim.campfireLevyPct = v),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: _buildSliderTile(
+                  label: 'Lodge Local Procurement Mandate',
+                  value: _policySim.lodgeLocalProcurementQuotaPct,
+                  min: 10,
+                  max: 80,
+                  unit: '%',
+                  onChanged: (v) => setState(() => _policySim.lodgeLocalProcurementQuotaPct = v),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildSliderTile(
+                  label: 'Foreign OTA Commission Cap',
+                  value: _policySim.otaCommissionCapPct,
+                  min: 5,
+                  max: 30,
+                  unit: '%',
+                  onChanged: (v) => setState(() => _policySim.otaCommissionCapPct = v),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: _buildSliderTile(
+                  label: 'Regional Dispersal Tax Incentive',
+                  value: _policySim.dispersalTaxRebateUsd,
+                  min: 0,
+                  max: 100,
+                  unit: 'US\$',
+                  onChanged: (v) => setState(() => _policySim.dispersalTaxRebateUsd = v),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Simulated 12-Month Projections Banner
+          Row(
+            children: [
+              Expanded(
+                child: _buildSimResultCard(
+                  'Community Inflow',
+                  'US\$${_policySim.projectedAnnualCommunityInflowMillions}M',
+                  '+${((_policySim.projectedAnnualCommunityInflowMillions / 14.2 - 1) * 100).toStringAsFixed(0)}% vs Base',
+                  EcoColors.mintAccent,
+                  Icons.payments_rounded,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildSimResultCard(
+                  'Direct Rural Jobs',
+                  '${_policySim.projectedDirectRuralJobs.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                  'Fair-Wage Employment',
+                  EcoColors.savannaGold,
+                  Icons.work_rounded,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildSimResultCard(
+                  'Gini Inequality Drop',
+                  '-${_policySim.projectedGiniReductionPct}%',
+                  'Wealth Retained Locally',
+                  EcoColors.mintAccent,
+                  Icons.balance_rounded,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildSimResultCard(
+                  'Visitor Dispersal',
+                  '+${_policySim.projectedVisitorDispersalShiftPct}%',
+                  'Shift to Rural Corridors',
+                  Colors.cyanAccent,
+                  Icons.explore_rounded,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+
+          // 12-Month Trajectory LineChart
+          const Text(
+            'PROJECTED 12-MONTH RURAL INFLOW TRAJECTORY (US\$ THOUSANDS / MONTH):',
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.8, color: Colors.white70),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 150,
+            child: LineChart(
+              LineChartData(
+                gridData: const FlGridData(show: false),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 36,
+                      getTitlesWidget: (v, m) => Text('\$${v.toInt()}k', style: const TextStyle(color: Colors.white30, fontSize: 9)),
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 22,
+                      getTitlesWidget: (v, m) {
+                        final idx = v.toInt() - 1;
+                        if (idx >= 0 && idx < monthlyPoints.length) {
+                          return Text(monthlyPoints[idx].monthName, style: const TextStyle(color: Colors.white54, fontSize: 9));
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: monthlyPoints.map((p) => FlSpot(p.monthIndex.toDouble(), p.communityInflowUsd)).toList(),
+                    isCurved: true,
+                    color: EcoColors.mintAccent,
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        colors: [EcoColors.mintAccent.withValues(alpha: 0.3), Colors.transparent],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSliderTile({
+    required String label,
+    required double value,
+    required double min,
+    required double max,
+    required String unit,
+    required Function(double) onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(label, style: const TextStyle(fontSize: 11, color: Colors.white70, fontWeight: FontWeight.w700)),
+              Text(
+                unit == 'US\$' ? '$unit${value.toInt()}' : '${value.toStringAsFixed(0)}$unit',
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: EcoColors.savannaGold),
+              ),
+            ],
+          ),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: EcoColors.emeraldPrimary,
+              inactiveTrackColor: Colors.white12,
+              thumbColor: EcoColors.mintAccent,
+              trackHeight: 4,
+            ),
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              onChanged: onChanged,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSimResultCard(String title, String mainVal, String subVal, Color color, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 14),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(title, style: const TextStyle(fontSize: 10, color: EcoColors.textSecondaryLight), overflow: TextOverflow.ellipsis),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(mainVal, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: color)),
+          const SizedBox(height: 2),
+          Text(subVal, style: const TextStyle(fontSize: 9.5, color: Colors.white38), overflow: TextOverflow.ellipsis),
         ],
       ),
     );
@@ -181,7 +465,6 @@ class NationalIntelligenceScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 12),
 
-                      // Metric Numbers
                       Row(
                         children: [
                           Expanded(
@@ -202,7 +485,6 @@ class NationalIntelligenceScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 10),
 
-                      // Leakage Mini Bar
                       ClipRRect(
                         borderRadius: BorderRadius.circular(4),
                         child: Row(
@@ -375,10 +657,10 @@ class NationalIntelligenceScreen extends ConsumerWidget {
                 gridData: const FlGridData(show: false),
                 borderData: FlBorderData(show: false),
                 barGroups: [
-                  _makeBar(0, 92, EcoColors.sunsetGlow), // Vic Falls congested
+                  _makeBar(0, 92, EcoColors.sunsetGlow),
                   _makeBar(1, 74, EcoColors.savannaGold),
                   _makeBar(2, 48, EcoColors.mintAccent),
-                  _makeBar(3, 22, EcoColors.emeraldPrimary), // Nyanga under-utilized
+                  _makeBar(3, 22, EcoColors.emeraldPrimary),
                   _makeBar(4, 38, EcoColors.mintAccent),
                   _makeBar(5, 65, EcoColors.savannaGold),
                 ],

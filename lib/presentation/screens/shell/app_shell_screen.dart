@@ -21,6 +21,8 @@ import '../guest/impact_passport_screen.dart';
 import '../guest/gamification_badges_screen.dart';
 import '../showcase/platform_showcase_screen.dart';
 
+import '../guest/trip_planner_screen.dart';
+
 class AppShellScreen extends ConsumerStatefulWidget {
   const AppShellScreen({super.key});
 
@@ -101,12 +103,14 @@ class _AppShellScreenState extends ConsumerState<AppShellScreen> {
           case 0:
             return GuestWelcomeScreen(onNavigateGuestTab: (idx) => setState(() => _guestTabIndex = idx));
           case 1:
-            return const GuestMobileSimulatorScreen();
+            return const TripPlannerScreen();
           case 2:
-            return CarbonCalculatorScreen(onNavigateGuestTab: (idx) => setState(() => _guestTabIndex = idx));
+            return const GuestMobileSimulatorScreen();
           case 3:
-            return const ImpactPassportScreen();
+            return CarbonCalculatorScreen(onNavigateGuestTab: (idx) => setState(() => _guestTabIndex = idx));
           case 4:
+            return const ImpactPassportScreen();
+          case 5:
             return const GamificationBadgesScreen();
           default:
             return GuestWelcomeScreen(onNavigateGuestTab: (idx) => setState(() => _guestTabIndex = idx));
@@ -137,6 +141,7 @@ class _AppShellScreenState extends ConsumerState<AppShellScreen> {
           ]
         : [
             {'icon': Icons.wb_sunny_rounded, 'label': 'Live Safari Impact'},
+            {'icon': Icons.alt_route_rounded, 'label': 'Trip & Leakage Planner'},
             {'icon': Icons.smartphone_rounded, 'label': 'Mobile App Simulator'},
             {'icon': Icons.calculate_rounded, 'label': 'Carbon Calculator'},
             {'icon': Icons.badge_rounded, 'label': 'Impact Passport'},

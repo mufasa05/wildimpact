@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/eco_colors.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/immersive_background_scaffold.dart';
 import '../../../core/widgets/safari_glow_button.dart';
+import '../../../core/widgets/waveform_audio_player.dart';
+import '../../../core/widgets/elder_payout_modal.dart';
 import '../../../domain/models/cultural_narrative.dart';
 import '../../providers/tourism_providers.dart';
 
@@ -18,11 +21,18 @@ class CulturalHeritageScreen extends ConsumerStatefulWidget {
 }
 
 class _CulturalHeritageScreenState extends ConsumerState<CulturalHeritageScreen> {
-  String? _currentlyPlayingId;
-  bool _isPlaying = false;
+  String? _selectedStoryId;
   final TextEditingController _ragSearchController = TextEditingController();
   String? _ragAnswer;
+  bool _isStreamingRag = false;
   String _selectedLanguage = 'All';
+  double _elderWalletBalanceUsd = 64.50;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedStoryId = 'story-1';
+  }
 
   @override
   void dispose() {
@@ -30,20 +40,45 @@ class _CulturalHeritageScreenState extends ConsumerState<CulturalHeritageScreen>
     super.dispose();
   }
 
-  void _askOralRag(String query) {
+  void _streamOralRagAnswer(String fullAnswer) {
     setState(() {
-      _ragSearchController.text = query;
-      if (query.toLowerCase().contains('bird') || query.toLowerCase().contains('great zimbabwe')) {
-        _ragAnswer =
-            '🦅 **Elder Oral Tradition (ChiShona Translation)**: The Hungwe (Bateleur Eagle) carved on the soapstone pillars represents the spiritual messenger between Mwari (The Supreme Creator) and the Shona kings. It was never a mere ornament—its presence at the Eastern Enclosure signaled divine peace, righteous governance, and timely seasonal rains for the kingdom.';
-      } else if (query.toLowerCase().contains('njelele') || query.toLowerCase().contains('matobo')) {
-        _ragAnswer =
-            '🌧️ **Gogo Sibanda (SiNdebele Keeper of Matobo)**: Njelele is an ancient spiritual oracle. In times of drought, designated clan elders walk the granite valleys barefoot with black cattle offerings. The sacred rock caves whisper the rain forecasts through natural acoustic chambers that resonate across the Matopos.';
+      _ragAnswer = '';
+      _isStreamingRag = true;
+    });
+
+    int charIndex = 0;
+    Timer.periodic(const Duration(milliseconds: 18), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (charIndex < fullAnswer.length) {
+        setState(() {
+          _ragAnswer = fullAnswer.substring(0, charIndex + 1);
+          charIndex++;
+        });
       } else {
-        _ragAnswer =
-            '✨ **Multi-Vocal Knowledge Retrieval**: Authenticated oral archives confirm that indigenous tourism corridors in Zimbabwe were designed around seasonal spiritual calendars, preserving sacred baobab groves, medicinal wild herbs, and river sanctuaries for generations.';
+        setState(() => _isStreamingRag = false);
+        timer.cancel();
       }
     });
+  }
+
+  void _askOralRag(String query) {
+    _ragSearchController.text = query;
+    String answer;
+    if (query.toLowerCase().contains('bird') || query.toLowerCase().contains('great zimbabwe')) {
+      answer =
+          '🦅 **Elder Oral Tradition (ChiShona Translation)**: The Hungwe (Bateleur Eagle) carved on the soapstone pillars represents the spiritual messenger between Mwari (The Supreme Creator) and the Shona kings. It was never a mere ornament—its presence at the Eastern Enclosure signaled divine peace, righteous governance, and timely seasonal rains for the kingdom.';
+    } else if (query.toLowerCase().contains('njelele') || query.toLowerCase().contains('matobo')) {
+      answer =
+          '🌧️ **Gogo Sibanda (SiNdebele Keeper of Matobo)**: Njelele is an ancient spiritual oracle. In times of drought, designated clan elders walk the granite valleys barefoot with black cattle offerings. The sacred rock caves whisper the rain forecasts through natural acoustic chambers that resonate across the Matopos.';
+    } else {
+      answer =
+          '✨ **Multi-Vocal Knowledge Retrieval**: Authenticated oral archives confirm that indigenous tourism corridors in Zimbabwe were designed around seasonal spiritual calendars, preserving sacred baobab groves, medicinal wild herbs, and river sanctuaries for generations.';
+    }
+
+    _streamOralRagAnswer(answer);
   }
 
   @override
@@ -52,6 +87,11 @@ class _CulturalHeritageScreenState extends ConsumerState<CulturalHeritageScreen>
     final filtered = _selectedLanguage == 'All'
         ? narratives
         : narratives.where((n) => n.language == _selectedLanguage).toList();
+
+    final activeStory = narratives.firstWhere(
+      (n) => n.id == _selectedStoryId,
+      orElse: () => narratives.first,
+    );
 
     return ImmersiveBackgroundScaffold(
       imageUrl: CulturalHeritageScreen.backgroundUrl,
@@ -64,6 +104,30 @@ class _CulturalHeritageScreenState extends ConsumerState<CulturalHeritageScreen>
             _buildHeritageHeader(context),
             const SizedBox(height: 20),
 
+            // Active Interactive Waveform Audio Player
+            WaveformAudioPlayer(
+              key: ValueKey(activeStory.id),
+              title: activeStory.title,
+              elderName: activeStory.elderName,
+              language: activeStory.language,
+              transcript: activeStory.transcript,
+              totalDuration: const Duration(seconds: 48),
+              onListenCompleted: () {
+                setState(() {
+                  _elderWalletBalanceUsd += 0.50;
+                  activeStory.royaltyEarnedUsd += 0.50;
+                  activeStory.totalListens += 1;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('🎉 Listen verified! +US\$0.50 credited to Elder Community Trust.'),
+                    backgroundColor: EcoColors.forestDeep,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 20),
+
             // Interactive Oral RAG Search & Ask-Elder Concierge
             _buildOralRagConcierge(context),
             const SizedBox(height: 24),
@@ -73,7 +137,7 @@ class _CulturalHeritageScreenState extends ConsumerState<CulturalHeritageScreen>
             const SizedBox(height: 16),
 
             // List of Multi-Vocal Audio Stories
-            ...filtered.map((story) => _buildAudioStoryCard(context, story)),
+            ...filtered.map((story) => _buildStorySelectionTile(context, story)),
             const SizedBox(height: 30),
           ],
         ),
@@ -142,11 +206,11 @@ class _CulturalHeritageScreenState extends ConsumerState<CulturalHeritageScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.auto_awesome_rounded, color: EcoColors.mintAccent, size: 18),
-              const SizedBox(width: 8),
-              const Text(
+              Icon(Icons.auto_awesome_rounded, color: EcoColors.mintAccent, size: 18),
+              SizedBox(width: 8),
+              Text(
                 'ASK THE INDIGENOUS ORAL KNOWLEDGE RAG',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.8, color: EcoColors.mintAccent),
               ),
@@ -174,6 +238,7 @@ class _CulturalHeritageScreenState extends ConsumerState<CulturalHeritageScreen>
           const SizedBox(height: 10),
           Wrap(
             spacing: 8,
+            runSpacing: 6,
             children: [
               ActionChip(
                 label: const Text('🦅 Great Zimbabwe Bird', style: TextStyle(fontSize: 11, color: Colors.white)),
@@ -213,8 +278,6 @@ class _CulturalHeritageScreenState extends ConsumerState<CulturalHeritageScreen>
   }
 
   Widget _buildLanguageAndRoyaltyRow(List<CulturalNarrative> narratives) {
-    final totalRoyalties = narratives.fold<double>(0.0, (sum, n) => sum + n.royaltyEarnedUsd);
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -243,153 +306,100 @@ class _CulturalHeritageScreenState extends ConsumerState<CulturalHeritageScreen>
           ),
         ),
 
-        // Total Royalty Banner
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: EcoColors.savannaGold.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: EcoColors.savannaGold.withValues(alpha: 0.4)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.payments_rounded, color: EcoColors.savannaGold, size: 14),
-              const SizedBox(width: 6),
-              Text(
-                'US\$${totalRoyalties.toStringAsFixed(2)} Paid to Elders',
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: EcoColors.savannaGold),
-              ),
-            ],
+        // Elder Mobile Money Payout Trigger Button
+        InkWell(
+          onTap: () {
+            ElderPayoutModal.show(
+              context,
+              balance: _elderWalletBalanceUsd,
+              elderName: 'Elder Mambo Chidzero',
+              onPayoutSuccess: (amount) {
+                setState(() {
+                  _elderWalletBalanceUsd = (_elderWalletBalanceUsd - amount).clamp(0.0, 99999.0);
+                });
+              },
+            );
+          },
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              gradient: EcoColors.savannaGradient,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(color: EcoColors.savannaGold.withValues(alpha: 0.3), blurRadius: 8),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.account_balance_wallet_rounded, color: Colors.black, size: 14),
+                const SizedBox(width: 6),
+                Text(
+                  'US\$${_elderWalletBalanceUsd.toStringAsFixed(2)} Disburse Payout',
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.black),
+                ),
+              ],
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildAudioStoryCard(BuildContext context, CulturalNarrative story) {
-    final isCurrent = _currentlyPlayingId == story.id;
+  Widget _buildStorySelectionTile(BuildContext context, CulturalNarrative story) {
+    final isSelected = _selectedStoryId == story.id;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.only(bottom: 12),
       child: GlassCard(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(16),
         border: BorderSide(
-          color: isCurrent ? EcoColors.mintAccent : EcoColors.cardBorder,
+          color: isSelected ? EcoColors.mintAccent : EcoColors.cardBorder,
+          width: isSelected ? 1.5 : 1.0,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        onTap: () => setState(() => _selectedStoryId = story.id),
+        child: Row(
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Play / Pause Circle
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      if (isCurrent && _isPlaying) {
-                        _isPlaying = false;
-                      } else {
-                        _currentlyPlayingId = story.id;
-                        _isPlaying = true;
-                      }
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Playing oral recording by ${story.elderName} (US\$0.50 micro-royalty logged)'),
-                        backgroundColor: EcoColors.forestDeep,
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(25),
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      gradient: isCurrent && _isPlaying ? EcoColors.savannaGradient : EcoColors.emeraldGradient,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: (isCurrent && _isPlaying ? EcoColors.savannaGold : EcoColors.emeraldPrimary)
-                              .withValues(alpha: 0.4),
-                          blurRadius: 10,
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      isCurrent && _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                      color: Colors.black,
-                      size: 26,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 14),
-
-                // Title & Custodian Details
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        story.title,
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '🎙️ ${story.elderName} • ${story.communityName}',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: EcoColors.savannaGold),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '📍 ${story.location} • ⏳ ${story.audioDuration} • 🗣️ ${story.language}',
-                        style: const TextStyle(fontSize: 11, color: EcoColors.textSecondaryLight),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Transcript Box
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.25),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.white10),
+                color: isSelected ? EcoColors.emeraldPrimary : Colors.black.withValues(alpha: 0.4),
+                shape: BoxShape.circle,
               ),
+              child: Icon(
+                isSelected ? Icons.play_arrow_rounded : Icons.audiotrack_rounded,
+                color: isSelected ? Colors.black : EcoColors.savannaGold,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('ORAL TRANSCRIPT:', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white54)),
-                  const SizedBox(height: 4),
                   Text(
-                    '"${story.transcript}"',
-                    style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: EcoColors.textPrimaryLight, height: 1.3),
+                    story.title,
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 2),
                   Text(
-                    'Spiritual Context: ${story.spiritualContext}',
-                    style: const TextStyle(fontSize: 11, color: EcoColors.mintAccent, fontWeight: FontWeight.w600),
+                    '🎙️ ${story.elderName} • 📍 ${story.location} • 🗣️ ${story.language}',
+                    style: const TextStyle(fontSize: 11.5, color: EcoColors.textSecondaryLight),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 10),
-
-            // Royalty & Listens Bar
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '📊 ${story.totalListens} verified tourist listens',
-                  style: const TextStyle(fontSize: 11, color: EcoColors.textSecondaryLight),
+                  'US\$${story.royaltyEarnedUsd.toStringAsFixed(2)}',
+                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: EcoColors.savannaGold),
                 ),
                 Text(
-                  '💰 US\$${story.royaltyEarnedUsd.toStringAsFixed(2)} Elder Royalty Generated',
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: EcoColors.savannaGold),
+                  '${story.totalListens} plays',
+                  style: const TextStyle(fontSize: 10, color: EcoColors.textMuted),
                 ),
               ],
             ),

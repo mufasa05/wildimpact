@@ -449,7 +449,7 @@ class MockTourismData {
 
   // --- CULTURAL LIVING HERITAGE ORAL ARCHIVES (Multi-Vocal RAG) ---
   static List<CulturalNarrative> getCulturalNarratives() => [
-    const CulturalNarrative(
+    CulturalNarrative(
       id: 'cn-01',
       title: 'The Great Enclosure: Oral Songs of the Dry-Stone Builders',
       location: 'Great Zimbabwe UNESCO Monument (Masvingo)',
@@ -464,7 +464,7 @@ class MockTourismData {
       totalListens: 965,
       coverImageUrl: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=600&q=80',
     ),
-    const CulturalNarrative(
+    CulturalNarrative(
       id: 'cn-02',
       title: 'Njelele Shrine & The Rainmaking Ceremonies of Matobo',
       location: 'Matobo Sacred Granite Hills (Matabeleland)',
@@ -479,7 +479,7 @@ class MockTourismData {
       totalListens: 788,
       coverImageUrl: 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=600&q=80',
     ),
-    const CulturalNarrative(
+    CulturalNarrative(
       id: 'cn-03',
       title: 'Mosi-oa-Tunya: Nyami Nyami and the Smoke That Thunders',
       location: 'Victoria Falls / Zambezi River',
