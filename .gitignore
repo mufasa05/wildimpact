@@ -1,53 +1,140 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
+# ==============================================================================
+# SENSITIVE DATA & CREDENTIALS (NEVER COMMIT)
+# ==============================================================================
+# Environment variables
+.env
+.env.*
+*.env
+*.env.local
+*.env.development
+*.env.test
+*.env.production
+!.env.example
+!.env.template
 
-# IntelliJ related
+# Secrets, tokens, keys and certificates
+*.key
+*.pem
+*.p12
+*.pfx
+*.cer
+*.crt
+*.der
+*.keystore
+*.jks
+*.secret
+*.secrets
+credentials.json
+client_secrets*.json
+token.json
+auth.json
+service-account*.json
+
+# Mobile keys & signing configuration
+key.properties
+local.properties
+google-services.json
+GoogleService-Info.plist
+
+# Database files & local dumps
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.dump
+*.sql
+
+# ==============================================================================
+# FLUTTER & DART
+# ==============================================================================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+coverage/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+app.*.symbols
+app.*.map.json
+
+# Android Studio / Gradle artifacts
+/android/app/debug
+/android/app/profile
+/android/app/release
+*.apk
+*.aab
+*.aar
+.gradle/
+Captures/
+
+# iOS / CocoaPods artifacts
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/app.flx
+ios/Flutter/ephemeral/
+*.ipa
+*.dSYM/
+*.mobileprovision
+
+# macOS artifacts
+macos/Pods/
+macos/.symlinks/
+macos/Flutter/ephemeral/
+
+# ==============================================================================
+# NODE.JS & NESTJS BACKEND
+# ==============================================================================
+**/node_modules/
+**/dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.lerna/
+.wireit/
+
+# ==============================================================================
+# OS & IDE ARTIFACTS
+# ==============================================================================
+# Operating System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE & Editor files
 *.iml
 *.ipr
 *.iws
 .idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-
-# Node / Backend
-**/node_modules/
-**/dist/
-*.env
-*.env.*
-!.env.example
-
+# General logs and caches
+*.log
+*.pyc
+*.swp
+*.class
+.history/
+.atom/
+.build/
+.buildlog/
+.svn/
+.swiftpm/
