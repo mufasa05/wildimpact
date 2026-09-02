@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/tourism_repository.dart';
 import '../../data/supabase_tourism_repository.dart';
@@ -16,18 +17,32 @@ import '../../domain/models/sme_provider.dart';
 import '../../domain/models/user_auth_profile.dart';
 
 enum UserRole {
-  nationalZta('ZTA National Intelligence', 'Macro Footprints, Heatmaps & Leakage Index'),
-  culturalHeritage('Living Cultural Heritage', 'Multi-Vocal Oral RAG & Elder Royalties'),
-  accessibility('Universal Accessibility', 'Wheelchair Routing & Community Marketplace'),
-  operator('Operator Command Hub', 'B2B Real-time Dashboard & Telemetry'),
-  providerPortal('SME Provider Portal', '0% Fee Onboarding & ZTA Compliance'),
-  guest('Guest Mobile Experience', 'Impact Passport, Calculator & Offsets'),
-  platformShowcase('Platform Showcase & Deck', 'B2B Value Proposition & Architecture');
+  tourist('Tourist & Eco-Traveler', 'Live Safari, AI Concierge, Offline Maps & Passport', Icons.explore_rounded),
+  guest('Tourist & Eco-Traveler', 'Live Safari, AI Concierge, Offline Maps & Passport', Icons.explore_rounded),
+  operator('Safari Lodge Host', 'Multi-tenant Operations, Telemetry & ESG Reports', Icons.cottage_rounded),
+  ranger('Wildlife Ranger & Patrol', 'Anti-Poaching Radar, GPS Telemetry & Patrols', Icons.shield_rounded),
+  nationalZta('National Tourism Board', 'Macro Footprints, Economic Leakage & Nationwide Analytics', Icons.analytics_rounded),
+  providerPortal('Community SME & Artisan', '0% Fee Supplier Portal, Direct Orders & Payouts', Icons.handshake_rounded),
+  culturalHeritage('Living Heritage Custodian', 'Oral Folklore Registry & Elder Royalties', Icons.record_voice_over_rounded),
+  accessibility('Universal Accessibility', 'Wheelchair Routing & Inclusive Safaris', Icons.accessible_rounded);
 
   final String label;
   final String subtitle;
-  const UserRole(this.label, this.subtitle);
+  final IconData icon;
+  const UserRole(this.label, this.subtitle, this.icon);
 }
+
+final themeModeProvider = StateProvider<ThemeMode>((ref) {
+  return ThemeMode.dark;
+});
+
+final isAuthenticatedProvider = StateProvider<bool>((ref) {
+  return false; // Launch at Auth screen first
+});
+
+final activeRoleProvider = StateProvider<UserRole>((ref) {
+  return UserRole.tourist;
+});
 
 final tourismRepositoryProvider = Provider<TourismRepository>((ref) {
   return SupabaseTourismRepository();
@@ -35,70 +50,104 @@ final tourismRepositoryProvider = Provider<TourismRepository>((ref) {
 
 class CurrentUserProfileNotifier extends StateNotifier<UserAuthProfile> {
   final SupabaseService _supabaseService = SupabaseService.instance;
+  final Ref _ref;
 
-  CurrentUserProfileNotifier()
+  CurrentUserProfileNotifier(this._ref)
       : super(const UserAuthProfile(
           id: 'user-demo-01',
-          email: 'tawanda.moyo@wildimpact.org',
-          fullName: 'Tawanda Moyo',
+          email: 'mufasa@wildimpact.org',
+          fullName: 'Mufasa',
           persona: UserPersona.tourist,
           offsetPoints: 1250,
           royaltyBalanceUsd: 48.50,
         ));
 
-  void switchPersona(UserPersona persona) {
+  void signInAsRole(UserPersona persona, {String? fullName, String? email}) {
+    String defaultName;
+    String defaultEmail;
+    UserRole targetRole;
+
+    switch (persona) {
+      case UserPersona.tourist:
+        defaultName = fullName ?? 'Mufasa';
+        defaultEmail = email ?? 'mufasa@wildimpact.org';
+        targetRole = UserRole.tourist;
+        break;
+      case UserPersona.operator:
+        defaultName = fullName ?? 'Tendai Chikwanda (General Manager)';
+        defaultEmail = email ?? 'tendai.c@hwangewild.org';
+        targetRole = UserRole.operator;
+        break;
+      case UserPersona.ranger:
+        defaultName = fullName ?? 'Ranger Chief Dube';
+        defaultEmail = email ?? 'dube.ranger@zimparks.org';
+        targetRole = UserRole.ranger;
+        break;
+      case UserPersona.ztaAuditor:
+        defaultName = fullName ?? 'Dr. Chipo Marufu (Auditor General)';
+        defaultEmail = email ?? 'chipo.m@tourismzimbabwe.gov.zw';
+        targetRole = UserRole.nationalZta;
+        break;
+      case UserPersona.smeProvider:
+        defaultName = fullName ?? 'Farai Ndlovu (Artisan Guild Master)';
+        defaultEmail = email ?? 'farai.crafts@masvingosme.org';
+        targetRole = UserRole.providerPortal;
+        break;
+      case UserPersona.elderCustodian:
+        defaultName = fullName ?? 'Sekuru Munyaradzi Mutapa';
+        defaultEmail = email ?? 'elder.munyaradzi@heritagezim.org';
+        targetRole = UserRole.culturalHeritage;
+        break;
+    }
+
     state = UserAuthProfile(
-      id: state.id,
-      email: state.email,
-      fullName: state.fullName,
+      id: 'usr-${DateTime.now().millisecondsSinceEpoch}',
+      email: defaultEmail,
+      fullName: defaultName,
       persona: persona,
       tenantLodgeId: persona == UserPersona.operator ? 'hwange-safari-lodge' : null,
-      royaltyBalanceUsd: state.royaltyBalanceUsd,
-      offsetPoints: state.offsetPoints,
+      royaltyBalanceUsd: persona == UserPersona.elderCustodian ? 185.00 : (persona == UserPersona.smeProvider ? 340.00 : 48.50),
+      offsetPoints: persona == UserPersona.tourist ? 1250 : 400,
     );
+
+    _ref.read(activeRoleProvider.notifier).state = targetRole;
+    _ref.read(isAuthenticatedProvider.notifier).state = true;
   }
 
-  Future<void> signInWithSupabase({required String email, required String password}) async {
+  void switchPersona(UserPersona persona) {
+    signInAsRole(persona, fullName: state.fullName, email: state.email);
+  }
+
+  Future<void> signInWithSupabase({required String email, required String password, UserPersona persona = UserPersona.tourist}) async {
     final response = await _supabaseService.signIn(email: email, password: password);
     if (response?.user != null) {
-      state = UserAuthProfile(
-        id: response!.user!.id,
-        email: response.user!.email ?? email,
-        fullName: response.user!.userMetadata?['full_name'] as String? ?? 'Authenticated User',
-        persona: UserPersona.tourist,
-      );
+      final userName = response!.user!.userMetadata?['full_name'] as String? ?? (email.split('@').first.isNotEmpty ? email.split('@').first : 'Explorer');
+      signInAsRole(persona, fullName: userName, email: email);
+    } else {
+      // Fallback to local session
+      signInAsRole(persona, email: email);
     }
   }
 
-  Future<void> signUpWithSupabase({required String email, required String password, String? fullName}) async {
-    final response = await _supabaseService.signUp(email: email, password: password, fullName: fullName);
-    if (response?.user != null) {
-      state = UserAuthProfile(
-        id: response!.user!.id,
-        email: response.user!.email ?? email,
-        fullName: fullName ?? 'New Explorer',
-        persona: UserPersona.tourist,
-      );
-    }
+  Future<void> signUpWithSupabase({required String email, required String password, String? fullName, UserPersona persona = UserPersona.tourist}) async {
+    await _supabaseService.signUp(email: email, password: password, fullName: fullName);
+    signInAsRole(persona, fullName: fullName ?? 'Mufasa', email: email);
   }
 
   Future<void> signOut() async {
     await _supabaseService.signOut();
     state = const UserAuthProfile(
       id: 'guest-anon',
-      email: 'guest@wildimpact.org',
-      fullName: 'Anonymous Visitor',
+      email: 'mufasa@wildimpact.org',
+      fullName: 'Mufasa',
       persona: UserPersona.tourist,
     );
+    _ref.read(isAuthenticatedProvider.notifier).state = false;
   }
 }
 
 final currentUserProfileProvider = StateNotifierProvider<CurrentUserProfileNotifier, UserAuthProfile>((ref) {
-  return CurrentUserProfileNotifier();
-});
-
-final activeRoleProvider = StateProvider<UserRole>((ref) {
-  return UserRole.nationalZta;
+  return CurrentUserProfileNotifier(ref);
 });
 
 final culturalNarrativesProvider = Provider<List<CulturalNarrative>>((ref) {
@@ -131,7 +180,6 @@ final smeProvidersProvider = StateNotifierProvider<SmeProvidersNotifier, List<Sm
   final repo = ref.watch(tourismRepositoryProvider);
   return SmeProvidersNotifier(repo);
 });
-
 
 final selectedLodgeIdProvider = StateProvider<String>((ref) {
   return 'hwange-safari-lodge';

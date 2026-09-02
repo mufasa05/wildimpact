@@ -5,7 +5,6 @@ import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/immersive_background_scaffold.dart';
 import '../../../core/widgets/safari_glow_button.dart';
 import '../../../domain/models/trip_itinerary.dart';
-import '../../providers/tourism_providers.dart';
 
 class TripPlannerScreen extends ConsumerStatefulWidget {
   const TripPlannerScreen({super.key});

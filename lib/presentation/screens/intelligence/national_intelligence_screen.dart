@@ -228,7 +228,7 @@ class _NationalIntelligenceScreenState extends ConsumerState<NationalIntelligenc
               Expanded(
                 child: _buildSimResultCard(
                   'Direct Rural Jobs',
-                  '${_policySim.projectedDirectRuralJobs.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                  _policySim.projectedDirectRuralJobs.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},'),
                   'Fair-Wage Employment',
                   EcoColors.savannaGold,
                   Icons.work_rounded,

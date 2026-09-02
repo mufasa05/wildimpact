@@ -568,7 +568,7 @@ class MockTourismData {
       campfireCommunityShareUsd: 50.00,
       directInformalSmeSpendUsd: 30.00,
       keyBottleneck: 'Airfare & corporate hotel chain leakage; limited direct artisan linkages.',
-      interventionStrategy: 'ZimTour Instant Community Discovery badge & local craft provenance QR tags.',
+      interventionStrategy: 'WildImpact Instant Community Discovery badge & local craft provenance QR tags.',
     ),
     const EconomicLeakageMetric(
       region: 'Matobo & Great Zimbabwe',

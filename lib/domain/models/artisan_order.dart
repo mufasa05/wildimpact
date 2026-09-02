@@ -46,7 +46,7 @@ class ArtisanCommissionOrder {
     this.selectedDimension = CraftDimension.mantelpiece,
     this.customInscription = 'Mhuri (Family & Unity)',
     this.theme = 'Chapungu Spirit Bird (Great Zimbabwe)',
-    this.touristName = 'Tawanda Moyo',
+    this.touristName = 'Mufasa',
     this.deliveryLocation = 'Lodge Front Desk (Hwange Safari Lodge)',
   });
 

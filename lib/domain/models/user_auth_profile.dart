@@ -1,8 +1,10 @@
 enum UserPersona {
-  tourist('Tourist & Traveler', 'Impact Passport, Cultural Audio & Offset Receipts', '🌍'),
-  operator('Safari Lodge Host', 'Multi-tenant Operations, Ranger Telemetry & Staff', '🏨'),
-  ztaAuditor('ZTA National Auditor', 'Macro Flow, Economic Leakage & ESG Verification', '🏛️'),
-  elderCustodian('Community Custodian', 'Oral Folklore Registry & Royalty Payouts', '🎙️');
+  tourist('Tourist & Traveler', 'Impact Passport, Real-Time Safari Discovery & Offsets', '🌍'),
+  operator('Safari Lodge Host', 'Multi-tenant Operations, Bookings & ESG Reporting', '🏨'),
+  ranger('Wildlife Ranger & Patrol', 'Anti-Poaching Radar, GPS Telemetry & Patrols', '🛡️'),
+  ztaAuditor('National Tourism Board', 'Macro Footprints, Economic Leakage & Nationwide Analytics', '🏛️'),
+  smeProvider('Community SME & Artisan', '0% Fee Supplier Portal, Direct Orders & Payouts', '🤝'),
+  elderCustodian('Living Heritage Custodian', 'Oral Folklore Registry & Elder Royalties', '🎙️');
 
   final String title;
   final String description;
@@ -30,4 +32,26 @@ class UserAuthProfile {
     this.royaltyBalanceUsd = 0.0,
     this.offsetPoints = 0,
   });
+
+  UserAuthProfile copyWith({
+    String? id,
+    String? email,
+    String? fullName,
+    UserPersona? persona,
+    String? tenantLodgeId,
+    String? avatarUrl,
+    double? royaltyBalanceUsd,
+    int? offsetPoints,
+  }) {
+    return UserAuthProfile(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      fullName: fullName ?? this.fullName,
+      persona: persona ?? this.persona,
+      tenantLodgeId: tenantLodgeId ?? this.tenantLodgeId,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      royaltyBalanceUsd: royaltyBalanceUsd ?? this.royaltyBalanceUsd,
+      offsetPoints: offsetPoints ?? this.offsetPoints,
+    );
+  }
 }

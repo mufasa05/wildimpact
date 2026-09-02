@@ -1,13 +1,8 @@
 import 'package:flutter/foundation.dart';
 import '../core/services/supabase_service.dart';
 import '../domain/models/tenant_lodge.dart';
-import '../domain/models/conservation_project.dart';
-import '../domain/models/carbon_offset_project.dart';
 import '../domain/models/offset_purchase.dart';
 import '../domain/models/booking_contribution.dart';
-import '../domain/models/impact_evidence.dart';
-import '../domain/models/geospatial_data.dart';
-import 'mock_tourism_data.dart';
 import 'tourism_repository.dart';
 
 class SupabaseTourismRepository extends TourismRepository {
@@ -19,11 +14,6 @@ class SupabaseTourismRepository extends TourismRepository {
   bool get _hasSupabase => _supabaseService.isInitialized && _supabaseService.client != null;
 
   // --- Lodges ---
-  @override
-  List<TenantLodge> getLodges() {
-    return super.getLodges();
-  }
-
   Future<List<TenantLodge>> fetchLodgesFromSupabase() async {
     if (!_hasSupabase) return getLodges();
     try {
@@ -50,12 +40,6 @@ class SupabaseTourismRepository extends TourismRepository {
       debugPrint('Supabase fetchLodges fallback: $e');
       return getLodges();
     }
-  }
-
-  // --- Conservation Projects ---
-  @override
-  List<ConservationProject> getProjectsForLodge(String tenantId) {
-    return super.getProjectsForLodge(tenantId);
   }
 
   @override

@@ -62,7 +62,7 @@ class _ProviderOnboardingScreenState extends ConsumerState<ProviderOnboardingScr
       reviewCount: 1,
       isZtaRegistered: true,
       isEcoCertified: _isEcoCertifiedChecked,
-      description: _descController.text.trim().isNotEmpty ? _descController.text.trim() : 'Verified local enterprise partnering with ZimTour & WildImpact.',
+      description: _descController.text.trim().isNotEmpty ? _descController.text.trim() : 'Verified local enterprise partnering with WildImpact Eco-Platform.',
       imageUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=600&q=80',
     );
 

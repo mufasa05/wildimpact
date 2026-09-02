@@ -40,7 +40,7 @@ class ArtisanCommissionModal extends StatefulWidget {
 class _ArtisanCommissionModalState extends State<ArtisanCommissionModal> {
   late ArtisanCommissionOrder _order;
   final _inscriptionController = TextEditingController(text: 'Mhuri (Family & Unity)');
-  final _touristNameController = TextEditingController(text: 'Tawanda Moyo');
+  final _touristNameController = TextEditingController(text: 'Mufasa');
 
   @override
   void initState() {
@@ -225,7 +225,7 @@ class _ArtisanCommissionModalState extends State<ArtisanCommissionModal> {
                 text: 'Send Commission Payload via WhatsApp (0% Fee)',
                 icon: Icons.chat_bubble_rounded,
                 onPressed: () {
-                  final msg = _order.generateWhatsAppMessage();
+                  _order.generateWhatsAppMessage();
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

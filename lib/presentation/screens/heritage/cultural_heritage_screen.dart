@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/eco_colors.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/immersive_background_scaffold.dart';
-import '../../../core/widgets/safari_glow_button.dart';
 import '../../../core/widgets/waveform_audio_player.dart';
 import '../../../core/widgets/elder_payout_modal.dart';
 import '../../../domain/models/cultural_narrative.dart';
@@ -24,7 +23,6 @@ class _CulturalHeritageScreenState extends ConsumerState<CulturalHeritageScreen>
   String? _selectedStoryId;
   final TextEditingController _ragSearchController = TextEditingController();
   String? _ragAnswer;
-  bool _isStreamingRag = false;
   String _selectedLanguage = 'All';
   double _elderWalletBalanceUsd = 64.50;
 
@@ -43,7 +41,6 @@ class _CulturalHeritageScreenState extends ConsumerState<CulturalHeritageScreen>
   void _streamOralRagAnswer(String fullAnswer) {
     setState(() {
       _ragAnswer = '';
-      _isStreamingRag = true;
     });
 
     int charIndex = 0;
@@ -58,7 +55,6 @@ class _CulturalHeritageScreenState extends ConsumerState<CulturalHeritageScreen>
           charIndex++;
         });
       } else {
-        setState(() => _isStreamingRag = false);
         timer.cancel();
       }
     });

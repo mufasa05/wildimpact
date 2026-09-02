@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 
-/// Luxury African Savanna & Emerald Conservation Color Palette
+/// Luxury African Savanna & Emerald Conservation Color Palette (Dark & Light Mode)
 class EcoColors {
-  // Deep Backgrounds
+  // Dark Backgrounds
   static const Color obsidianBg = Color(0xFF08130E);
   static const Color darkCardBg = Color(0xFF0E221B);
   static const Color darkCardBgHover = Color(0xFF143026);
   static const Color cardBorder = Color(0x3334D399);
 
+  // Light Backgrounds & Cards
+  static const Color lightBg = Color(0xFFF5F8F5);
+  static const Color lightCardBg = Color(0xFFFFFFFF);
+  static const Color lightCardBgHover = Color(0xFFF0FDF4);
+  static const Color lightCardBorder = Color(0xFFE2E8F0);
+  static const Color lightSidebarBg = Color(0xFF0D251C);
+
   // Emerald & Forest Accents (Conservation & Vitality)
   static const Color emeraldPrimary = Color(0xFF10B981);
+  static const Color emeraldDark = Color(0xFF047857);
   static const Color mintAccent = Color(0xFF34D399);
   static const Color forestDeep = Color(0xFF064E3B);
   static const Color lightMint = Color(0xFFD1FAE5);
@@ -31,10 +39,15 @@ class EcoColors {
   static const Color warning = Color(0xFFEAB308);
   static const Color error = Color(0xFFEF4444);
 
-  // Text colors
+  // Text colors (Dark Mode)
   static const Color textPrimaryLight = Color(0xFFF9FAFB);
   static const Color textSecondaryLight = Color(0xFF9CA3AF);
   static const Color textMuted = Color(0xFF6B7280);
+
+  // Text colors (Light Mode)
+  static const Color textPrimaryDark = Color(0xFF0F172A);
+  static const Color textSecondaryDark = Color(0xFF475569);
+  static const Color textMutedDark = Color(0xFF94A3B8);
 
   // Gradients
   static const LinearGradient emeraldGradient = LinearGradient(
@@ -51,6 +64,12 @@ class EcoColors {
 
   static const LinearGradient darkCardGradient = LinearGradient(
     colors: [Color(0xFF10271F), Color(0xFF091712)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  static const LinearGradient lightCardGradient = LinearGradient(
+    colors: [Color(0xFFFFFFFF), Color(0xFFF8FAF8)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
